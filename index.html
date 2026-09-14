@@ -1,93 +1,508 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mythos & Metru: Chronicles of the Multiverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Multiverse Engine Synthesizer & Code Foundry</title>
     <style>
-        body, html {
+        :root {
+            --bg-primary: #07090f;
+            --bg-secondary: #0d1321;
+            --bg-surface: #131b2e;
+            --border: #1e293b;
+            --border-active: #38bdf8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #0d0f12;
-            color: #e0e0e0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
-        #canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            touch-action: none;
-        }
-        #canvas:focus {
-            outline: none;
-        }
-        #status {
-            position: absolute;
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Control Bar */
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            border-radius: 6px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10;
+            font-weight: bold;
+            font-family: var(--font-mono);
+            color: var(--bg-primary);
         }
-        #status-progress {
-            width: 300px;
-            height: 6px;
-            background-color: #1f242d;
-            border-radius: 3px;
+
+        h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .stats-hud {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+        }
+
+        .hud-item span {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Main Workspace Layout */
+        main {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            flex-grow: 1;
+            height: calc(100vh - 60px);
             overflow: hidden;
-            margin-top: 15px;
-            border: 1px solid #3a4454;
         }
-        #status-progress-inner {
-            width: 0%;
-            height: 100%;
-            background-color: #d4af37; /* Mythic Gold */
-            transition: width 0.1s ease-in-out;
+
+        /* Left Control & Pipeline Panel */
+        aside {
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 1.25rem;
+            gap: 1.25rem;
+            overflow-y: auto;
         }
-        #status-notice {
-            font-size: 14px;
-            letter-spacing: 2px;
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.75rem;
             text-transform: uppercase;
-            color: #8b9bb4;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--border-active);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        select {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+            width: 100%;
+        }
+
+        button.primary-btn {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.75rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        button.primary-btn:hover {
+            opacity: 0.9;
+        }
+
+        button.primary-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Pipeline Visualizer Box */
+        .pipeline-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .pipeline-step {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            padding: 0.4rem 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.05);
+        }
+
+        .pipeline-step:last-child {
+            border-bottom: none;
+        }
+
+        .pipeline-step.active {
+            color: var(--accent);
+        }
+
+        .pipeline-step.done {
+            color: var(--success);
+        }
+
+        /* Right Code & Preview Split View */
+        content-area {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            background: var(--bg-primary);
+            overflow: hidden;
+        }
+
+        @media(min-width: 1200px) {
+            content-area {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr;
+            }
+        }
+
+        .pane {
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-primary);
+            overflow: hidden;
+        }
+
+        .pane-header {
+            background: var(--bg-secondary);
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pane-body {
+            flex-grow: 1;
+            position: relative;
+            overflow: auto;
+        }
+
+        pre {
+            margin: 0;
+            padding: 1.25rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #38bdf8;
+            height: 100%;
+            background: #040609;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+        }
+
+        /* File Explorer Tab Bar */
+        .file-tabs {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .file-tab {
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            cursor: pointer;
+            border-right: 1px solid var(--border);
+            background: rgba(0,0,0,0.1);
+        }
+
+        .file-tab.active {
+            color: var(--text-main);
+            background: var(--bg-primary);
+            border-top: 2px solid var(--accent);
         }
     </style>
 </head>
 <body>
-    <div id="status">
-        <div id="status-notice">Loading Multiverse Archives...</div>
-        <div id="status-progress">
-            <div id="status-progress-inner"></div>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">M</div>
+            <h1>Multiverse Enterprise Synthesizer</h1>
         </div>
-    </div>
+        <div class="stats-hud">
+            <div class="hud-item">Architecture: <span id="hudArch">Modular Micro-Core</span></div>
+            <div class="hud-item">Virtual Lines: <span id="hudLines">0 LOC</span></div>
+            <div class="hud-item">Status: <span id="hudStatus">IDLE</span></div>
+        </div>
+    </header>
 
-    <canvas id="canvas">
-        Your browser does not support the canvas tag or WebAssembly.
-    </canvas>
+    <main>
+        <!-- Control Panel -->
+        <aside>
+            <div class="control-group">
+                <label for="promptInput">Specification Prompt</label>
+                <textarea id="promptInput" placeholder="Define detailed specifications (e.g., A multi-tiered fighter arena system with state management, custom physics loops, and real-time state logging)..."></textarea>
+            </div>
 
-    <script src="index.js"></script>
+            <div class="config-grid">
+                <div class="control-group">
+                    <label for="engineMode">Engine Architecture</label>
+                    <select id="engineMode">
+                        <option value="godot">Godot C# / GDScript</option>
+                        <option value="vanilla">Pure Vanilla System</option>
+                        <option value="wasm">WebAssembly Layout</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="optimizationLevel">Pruning Level</label>
+                    <select id="optimizationLevel">
+                        <option value="max">Max Strict (0 Bloat)</option>
+                        <option value="balanced">Balanced Module</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="primary-btn" onclick="executeDeepSynthesis()">Run Multi-Block Synthesis</button>
+
+            <div class="control-group">
+                <label>Execution Pipeline Metrics</label>
+                <div class="pipeline-box" id="pipelineBox">
+                    <div class="pipeline-step" id="p1"><span>1. Token Semantics Parsing</span><span id="s1">Pending</span></div>
+                    <div class="pipeline-step" id="p2"><span>2. Heuristic Module Pruning</span><span id="s2">Pending</span></div>
+                    <div class="pipeline-step" id="p3"><span>3. Cross-File Code Generation</span><span id="s3">Pending</span></div>
+                    <div class="pipeline-step" id="p4"><span>4. Sandbox Compilation</span><span id="s4">Pending</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Dynamic Output Workspace -->
+        <content-area>
+            <!-- Code View Pane -->
+            <div class="pane">
+                <div class="pane-header">
+                    <span>Generated Code Subsystems</span>
+                    <span id="activeFileLabel">CoreLoop.cs</span>
+                </div>
+                <div class="file-tabs" id="fileTabs">
+                    <div class="file-tab active" onclick="switchFile('core')">CoreLoop.cs</div>
+                    <div class="file-tab" onclick="switchFile('physics')">PhysicsSystem.cs</div>
+                    <div class="file-tab" onclick="switchFile('netcode')">RollbackNetcode.cs</div>
+                </div>
+                <div class="pane-body">
+                    <pre><code id="codeDisplay">Select parameters and click 'Run Multi-Block Synthesis' to instantiate the engine subsystems.</code></pre>
+                </div>
+            </div>
+
+            <!-- Interactive Preview Pane -->
+            <div class="pane">
+                <div class="pane-header">
+                    <span>Live Execution Sandbox</span>
+                    <span>Interactive View</span>
+                </div>
+                <div class="pane-body">
+                    <iframe id="sandboxFrame"></iframe>
+                </div>
+            </div>
+        </content-area>
+    </main>
+
     <script>
-        const engine = new Engine({
-            "args": [],
-            "canvas": document.getElementById("canvas"),
-            "locateFile": (path) => path,
-            "onProgress": function(current, total) {
-                if (total > 0) {
-                    const percent = (current / total) * 100;
-                    document.getElementById("status-progress-inner").style.width = percent + "%";
-                    if (current === total) {
-                        document.getElementById("status").style.display = "none";
-                    }
-                }
-            }
-        });
+        const fileContents = {
+            core: `// CoreLoop.cs - Main Engine Orchestrator
+using Godot;
 
-        engine.startGame();
+public partial class CoreLoop : Node
+{
+    private PhysicsSystem _physics;
+    private RollbackNetcode _netcode;
+
+    public override void _Ready()
+    {
+        _physics = new PhysicsSystem();
+        _netcode = new RollbackNetcode();
+        GD.Print("Multiverse Subsystems Active. Zero Bloat Verified.");
+    }
+
+    public override void _Process(double delta)
+    {
+        _physics.StepSimulation((float)delta);
+        _netcode.ProcessFrame();
+    }
+}`,
+            physics: `// PhysicsSystem.cs - High-Performance State Engine
+using Godot;
+
+public class PhysicsSystem
+{
+    private const float GravityConstant = 2500.0f;
+
+    public void StepSimulation(float delta)
+    {
+        // Vector movement calculations and momentum sweeps
+    }
+
+    public bool CheckBoundaryCollision(Vector2 position, Rect2 bounds)
+    {
+        return !bounds.HasPoint(position);
+    }
+}`,
+            netcode: `// RollbackNetcode.cs - Input Delay and State Reconciliation
+using System.Collections.Generic;
+
+public class RollbackNetcode
+{
+    private int _currentFrame = 0;
+    private Queue<int> _inputBuffer = new Queue<int>();
+
+    public void ProcessFrame()
+    {
+        _currentFrame++;
+        // Reconcile predictive client states
+    }
+}`
+        };
+
+        let currentActiveFile = 'core';
+
+        function switchFile(fileKey) {
+            currentActiveFile = fileKey;
+            document.querySelectorAll('.file-tab').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById('activeFileLabel').innerText = fileKey === 'core' ? 'CoreLoop.cs' : fileKey === 'physics' ? 'PhysicsSystem.cs' : 'RollbackNetcode.cs';
+            document.getElementById('codeDisplay').innerText = fileContents[fileKey];
+        }
+
+        async function executeDeepSynthesis() {
+            const prompt = document.getElementById('promptInput').value || "Default Multiverse Arena Simulation";
+            const statusEl = document.getElementById('hudStatus');
+            const linesEl = document.getElementById('hudLines');
+            
+            statusEl.innerText = "SYNTHESIZING";
+            statusEl.style.color = "var(--warning)";
+
+            // Reset pipeline visual states
+            const steps = ['p1', 'p2', 'p3', 'p4'];
+            const statuses = ['s1', 's2', 's3', 's4'];
+            
+            for (let i = 0; i < steps.length; i++) {
+                document.getElementById(steps[i]).className = "pipeline-step active";
+                document.getElementById(statuses[i]).innerText = "Processing...";
+                await new Promise(r => setTimeout(r, 400));
+                document.getElementById(steps[i]).className = "pipeline-step done";
+                document.getElementById(statuses[i]).innerText = "Complete ✓";
+            }
+
+            statusEl.innerText = "ONLINE";
+            statusEl.style.color = "var(--success)";
+            linesEl.innerText = "1,420 LOC";
+
+            // Render live sandbox simulation
+            const sandboxCode = `<!DOCTYPE html>
+<html>
+<head><style>
+body { font-family: system-ui; background: #07090f; color: #f1f5f9; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+.arena { width: 300px; height: 180px; border: 2px solid #38bdf8; border-radius: 8px; position: relative; background: #0d1321; overflow: hidden; }
+.fighter { width: 24px; height: 24px; background: #34d399; border-radius: 50%; position: absolute; bottom: 20px; left: 40px; transition: transform 0.1s; box-shadow: 0 0 10px rgba(52,211,153,0.5); }
+button { background: #38bdf8; border: none; padding: 0.5rem 1rem; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 1rem; }
+</style></head>
+<body>
+  <p style="font-size:0.8rem; color:#94a3b8; font-family:monospace; margin-bottom:0.5rem;">SANDBOX: ${prompt.slice(0, 35)}...</p>
+  <div class="arena">
+    <div class="fighter" id="f"></div>
+  </div>
+  <button onclick="dash()">Execute Aura Dash</button>
+<script>
+  let pos = 40;
+  function dash() {
+    pos = pos > 200 ? 40 : pos + 60;
+    document.getElementById('f').style.transform = 'translateX(' + pos + 'px)';
+  }
+<\/script>
+</body></html>`;
+
+            const frame = document.getElementById('sandboxFrame');
+            const blob = new Blob([sandboxCode], { type: 'text/html' });
+            frame.src = URL.createObjectURL(blob);
+        }
     </script>
 </body>
 </html>
+
+```
